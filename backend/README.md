@@ -20,15 +20,22 @@ Este backend está construido con Node.js, Express y MongoDB.
 2. Configura variables de entorno (.env):
 
    ```
-   MONGO_URI=mongodb://localhost:27017/plataforma_cursos
    JWT_SECRET=tu_clave_secreta_super_segura
    PORT=4000
-   FRONTEND_URL=http://localhost:3000
+   FRONTEND_URL=http://localhost:5173
    ```
 
 3. Ejecuta el servidor:
 
    npm run dev
+
+### HTTPS (desarrollo)
+
+Para ejecutar el backend con HTTPS:
+
+   npm run dev:https
+
+Se generarán certificados autofirmados en `./certs/` la primera vez. Añade `https://localhost:5173` a `FRONTEND_URL` si usas el frontend con HTTPS.
 
 ## Endpoints principales
 
@@ -82,6 +89,47 @@ Ejecuta los tests con:
 - Implementar rate limiting
 - Configurar HTTPS
 - Usar helmet para proteger cabeceras HTTP
+
+## Deploy en Vercel (Backend)
+
+Este backend ya está preparado para Vercel con:
+
+- `api/index.js` como entrypoint serverless de Express
+- `vercel.json` para enrutar todo hacia la API
+
+### 1) Variables de entorno (Project Settings > Environment Variables)
+
+Configura al menos:
+
+```bash
+NODE_ENV=production
+JWT_SECRET=tu_clave_larga_y_segura
+FRONTEND_URL=https://tu-frontend.vercel.app
+MYSQL_HOST=...
+MYSQL_PORT=3306
+MYSQL_USER=...
+MYSQL_PASSWORD=...
+MYSQL_DATABASE=...
+```
+
+Si permites varios frontends, usa `FRONTEND_URL` separado por comas.
+
+### 2) Importar el proyecto `backend` en Vercel
+
+- Crea un proyecto nuevo en Vercel apuntando a la carpeta `backend`.
+- Framework Preset: **Other**.
+- Build Command: vacío.
+- Output Directory: vacío.
+- Install Command: `npm install`.
+
+### 3) Verificar despliegue
+
+- Health check: `GET /`
+- API: `GET /api/...`
+
+### Importante sobre archivos y uploads
+
+En Vercel Serverless, el sistema de archivos es efímero. Para producción, evita guardar uploads en disco local y usa almacenamiento externo (por ejemplo S3/Cloudinary).
 
 ---
 
