@@ -1,7 +1,7 @@
 const express = require('express');
 const progressController = require('../controllers/progress.controller');
 const auth = require('../middleware/auth');
-const requireAdmin = require('../middleware/requireAdmin');
+const requireCourseOwnerOrAdmin = require('../middleware/requireCourseOwnerOrAdmin');
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.get('/:courseId/diploma', auth, progressController.downloadDiploma);
 router.get(
   '/:courseId/all-progress',
   auth,
-  requireAdmin,
+  requireCourseOwnerOrAdmin,
   progressController.getAllProgressByCourse
 );
 

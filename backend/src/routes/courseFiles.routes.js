@@ -1,19 +1,19 @@
 const express = require('express');
 const courseFileController = require('../controllers/courseFile.controller');
 const auth = require('../middleware/auth');
-const requireAdmin = require('../middleware/requireAdmin');
+const requireCourseOwnerOrAdmin = require('../middleware/requireCourseOwnerOrAdmin');
 const uploadFiles = require('../middleware/uploadFiles');
 
 const router = express.Router();
 
-router.get('/:courseId', courseFileController.getByCourseId);
+router.get('/:courseId', auth, courseFileController.getByCourseId);
 router.post(
   '/:courseId/upload',
   auth,
-  requireAdmin,
+  requireCourseOwnerOrAdmin,
   uploadFiles.single('file'),
   courseFileController.create
 );
-router.delete('/:courseId/:fileId', auth, requireAdmin, courseFileController.remove);
+router.delete('/:courseId/:fileId', auth, requireCourseOwnerOrAdmin, courseFileController.remove);
 
 module.exports = router;

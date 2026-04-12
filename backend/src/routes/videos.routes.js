@@ -1,21 +1,21 @@
 const express = require('express');
 const videosController = require('../controllers/videos.controller');
 const auth = require('../middleware/auth');
-const requireAdmin = require('../middleware/requireAdmin');
+const requireCourseOwnerOrAdmin = require('../middleware/requireCourseOwnerOrAdmin');
 const upload = require('../middleware/upload');
 
 const router = express.Router();
 
-router.get('/:courseId', videosController.getByCourseId);
-router.get('/:courseId/:videoId', videosController.getById);
+router.get('/:courseId', auth, videosController.getByCourseId);
+router.get('/:courseId/:videoId', auth, videosController.getById);
 router.post(
   '/:courseId/upload',
   auth,
-  requireAdmin,
+  requireCourseOwnerOrAdmin,
   upload.fields([{ name: 'video', maxCount: 1 }, { name: 'subtitle', maxCount: 1 }]),
   videosController.create
 );
-router.put('/:courseId/:videoId', auth, requireAdmin, videosController.update);
-router.delete('/:courseId/:videoId', auth, requireAdmin, videosController.remove);
+router.put('/:courseId/:videoId', auth, requireCourseOwnerOrAdmin, videosController.update);
+router.delete('/:courseId/:videoId', auth, requireCourseOwnerOrAdmin, videosController.remove);
 
 module.exports = router;

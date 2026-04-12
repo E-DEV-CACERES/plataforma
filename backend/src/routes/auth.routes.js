@@ -1,11 +1,8 @@
 const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/auth.controller');
-const authRateLimiter = require('../middleware/rateLimitAuth');
 
 const router = express.Router();
-
-router.use(authRateLimiter);
 
 router.post(
   '/register',

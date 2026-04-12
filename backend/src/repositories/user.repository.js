@@ -30,9 +30,27 @@ async function create(data) {
   return result.insertId;
 }
 
+async function updatePassword(id, hashedPassword) {
+  const [result] = await db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, id]);
+  return result.affectedRows > 0;
+}
+
+async function updateRole(id, role) {
+  const [result] = await db.query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
+  return result.affectedRows > 0;
+}
+
+async function deleteById(id) {
+  const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+  return result.affectedRows > 0;
+}
+
 module.exports = {
   findByEmail,
   findById,
   emailExists,
   create,
+  updatePassword,
+  updateRole,
+  deleteById,
 };

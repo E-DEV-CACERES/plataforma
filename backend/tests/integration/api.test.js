@@ -122,11 +122,18 @@ describe('API de Plataforma de Cursos', () => {
   });
 
   describe('GET /api/courses', () => {
-    test('Debe obtener lista de cursos', async () => {
-      const res = await request(app).get('/api/courses');
+    test('Debe obtener lista de cursos con token válido', async () => {
+      const res = await request(app)
+        .get('/api/courses')
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    test('Debe rechazar lista de cursos sin token', async () => {
+      const res = await request(app).get('/api/courses');
+      expect(res.statusCode).toBe(401);
     });
   });
 

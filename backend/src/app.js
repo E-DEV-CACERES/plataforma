@@ -9,11 +9,20 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
+// Webhook Stripe debe recibir body raw (antes de express.json)
+app.use(
+  '/api/webhooks',
+  express.raw({ type: 'application/json' }),
+  require('./routes/webhooks.routes')
+);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(
   cors({
-    origin: config.corsOrigins,
+    origin: config.corsOriginFn,
     credentials: true,
   })
 );
