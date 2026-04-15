@@ -8,7 +8,6 @@ async function start() {
     conn.release();
     console.log('✓ Conectado a MySQL');
 
-    // Vercel asigna puerto automáticamente; usar PORT del entorno o config
     const port = process.env.PORT || config.port;
 
     const server = app.listen(port, () => {
@@ -27,4 +26,8 @@ async function start() {
   }
 }
 
-start();
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  start();
+}
