@@ -40,7 +40,8 @@ const corsOriginFn = (origin, cb) => {
   if (
     origin.endsWith('.ngrok-free.app') ||
     origin.endsWith('.ngrok-free.dev') ||
-    origin.endsWith('.ngrok.io')
+    origin.endsWith('.ngrok.io') ||
+    origin.endsWith('.vercel.app')
   ) {
     return cb(null, true);
   }

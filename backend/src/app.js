@@ -18,14 +18,14 @@ app.use(
   require('./routes/webhooks.routes')
 );
 
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(express.json());
 app.use(
   cors({
     origin: config.corsOriginFn,
     credentials: true,
   })
 );
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(express.json());
 
 const videoMimeTypes = { '.mp4': 'video/mp4', '.m4v': 'video/mp4', '.webm': 'video/webm', '.ogg': 'video/ogg', '.mov': 'video/quicktime', '.avi': 'video/x-msvideo' };
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'), {
