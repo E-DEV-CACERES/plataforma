@@ -2,21 +2,25 @@ import { defineConfig, loadEnv } from 'vite'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import react from '@vitejs/plugin-react'
-import basicSsl from '@vitejs/plugin-basic-ssl'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, resolve(__dirname), '')
   const useHttps = env.VITE_HTTPS === 'true'
 
-  // Backend: HTTP por defecto. Si usa HTTPS (USE_HTTPS=true), target debe ser https
+  const plugins = [react()]
+  if (useHttps) {
+    const basicSsl = (await import('@vitejs/plugin-basic-ssl')).default
+    plugins.unshift(basicSsl())
+  }
+
   const backendProtocol = env.VITE_BACKEND_HTTPS === 'true' ? 'https' : 'http';
   const proxyTarget = `${backendProtocol}://localhost:4000`;
 
   return {
-    plugins: [...(useHttps ? [basicSsl()] : []), react()],
+    plugins,
     server: {
       https: useHttps,
       host: true,
