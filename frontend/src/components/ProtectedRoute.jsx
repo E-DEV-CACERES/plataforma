@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { Box, CircularProgress, Typography } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();

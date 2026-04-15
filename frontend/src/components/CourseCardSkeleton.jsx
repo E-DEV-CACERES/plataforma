@@ -50,7 +50,7 @@ export function CourseGridSkeleton({ count = 6, noHeader = false }) {
   const grid = (
     <Grid container spacing={3}>
       {Array.from({ length: count }).map((_, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
           <CourseCardSkeleton />
         </Grid>
       ))}
@@ -89,7 +89,7 @@ export function CourseDetailSkeleton() {
           <Skeleton variant="rounded" width={180} height={40} sx={{ mt: 2 }} />
         </Box>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Skeleton
               variant="rectangular"
               height={400}
@@ -101,7 +101,7 @@ export function CourseDetailSkeleton() {
               <Skeleton variant="text" width="100%" height={20} />
             </Box>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ p: 2 }}>
               <Skeleton variant="text" width="80%" height={28} sx={{ mb: 2 }} />
               {[1, 2, 3, 4, 5].map((i) => (

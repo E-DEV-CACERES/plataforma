@@ -1,28 +1,48 @@
 /**
- * Script para listar los usuarios de la tabla users.
- * Ejecutar: node scripts/list-users.js
+ * Lista todos los usuarios (sin contraseña).
+ * Uso: npm run user:list
  */
 require('dotenv').config();
 const db = require('../src/db');
 
-async function listUsers() {
+async function main() {
   try {
     const [rows] = await db.query(
-      'SELECT id, name, email, role, created_at FROM users ORDER BY id'
+      'SELECT id, name, email, role, created_at AS createdAt FROM users ORDER BY id ASC'
     );
-    console.log('\n=== Usuarios en la tabla users ===\n');
-    if (rows.length === 0) {
-      console.log('No hay usuarios registrados.\n');
+
+    if (!rows.length) {
+      console.log('No hay usuarios en la base de datos.');
       return;
     }
-    console.table(rows);
+
     console.log(`Total: ${rows.length} usuario(s)\n`);
+    console.table(
+      rows.map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        createdAt: u.createdAt,
+      }))
+    );
   } catch (err) {
+    if (err.code === 'ER_BAD_FIELD_ERROR' || err.message?.includes('Unknown column')) {
+      const [rows] = await db.query(
+        'SELECT id, name, email, role FROM users ORDER BY id ASC'
+      );
+      if (!rows.length) {
+        console.log('No hay usuarios.');
+        return;
+      }
+      console.table(rows);
+      return;
+    }
     console.error('Error:', err.message);
     process.exit(1);
   } finally {
-    process.exit(0);
+    await db.pool.end();
   }
 }
 
-listUsers();
+main();

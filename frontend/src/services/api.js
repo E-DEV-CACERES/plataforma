@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+// En dev: usa /api (relativo) para que pase por el proxy/túnel ngrok
+// En prod: usa VITE_API_URL o fallback absoluto
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:4000/api');
 
-/** Base URL para archivos estáticos (videos, subtítulos). En dev con proxy usa '' para evitar CORS. */
-export const MEDIA_BASE_URL = API_URL.replace(/\/api\/?$/, '') || '';
+/** Base URL para archivos estáticos (videos, subtítulos). Vacío = rutas relativas (pasan por proxy). */
+export const MEDIA_BASE_URL = API_URL.startsWith('/') ? '' : API_URL.replace(/\/api\/?$/, '') || '';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -12,23 +14,70 @@ const api = axios.create({
   },
 });
 
-// Interceptor para agregar token a cada request
+// Interceptor para agregar token y header ngrok cuando se accede por túnel
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Evitar bloqueo de ngrok en plan gratuito (página de advertencia que bloquea registro/login)
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    if (
+      origin.endsWith('.ngrok-free.app') ||
+      origin.endsWith('.ngrok-free.dev') ||
+      origin.endsWith('.ngrok.io')
+    ) {
+      config.headers['ngrok-skip-browser-warning'] = '1';
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+// Interceptor: 401 = sesión inválida, limpiar y redirigir a login
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(err);
+  }
+);
+
+// Admin services (solo admin)
+export const adminService = {
+  getUsersWithEnrollments: () => api.get('/admin/users'),
+  updateUserPassword: (userId, password) => api.put(`/admin/users/${userId}/password`, { password }),
+  updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role`, { role }),
+  deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
+};
 
 // Auth services
 export const authService = {
   register: (data) => api.post('/auth/register', data),
   login: (email, password) => api.post('/auth/login', { email, password }),
   logout: () => localStorage.removeItem('token'),
+};
+
+// Instructor services
+export const instructorService = {
+  getProfile: (id) => api.get(`/instructors/${id}`),
+  getMyProfile: () => api.get('/instructors/me'),
+  updateMyProfile: (data) => api.put('/instructors/me', data),
+  uploadProfileImage: (formData) =>
+    api.post('/instructors/me/profile-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  uploadCoverImage: (formData) =>
+    api.post('/instructors/me/cover-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
 };
 
 // Course services
@@ -41,6 +90,7 @@ export const courseService = {
   updateCourse: (id, data) => api.put(`/courses/${id}`, data),
   deleteCourse: (id) => api.delete(`/courses/${id}`),
   enrollCourse: (id) => api.post(`/courses/${id}/enroll`),
+  createCheckout: (id) => api.post(`/courses/${id}/checkout`),
   rateCourse: (id, rating) => api.post(`/courses/${id}/rate`, { rating }),
 };
 

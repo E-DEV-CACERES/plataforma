@@ -1,25 +1,45 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
-const videosDir = path.join(process.cwd(), 'uploads', 'videos');
-const subtitlesDir = path.join(process.cwd(), 'uploads', 'subtitles');
-[videosDir, subtitlesDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-});
+// En Vercel/Producción: usar /tmp; en desarrollo: usar ./uploads
+const getUploadDir = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return path.join(os.tmpdir(), 'uploads');
+  }
+  return path.join(process.cwd(), 'uploads');
+};
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = file.fieldname === 'subtitle' ? subtitlesDir : videosDir;
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = file.fieldname === 'subtitle' ? '.vtt' : '.mp4';
-    const prefix = file.fieldname === 'subtitle' ? 'subtitle-' : 'video-';
-    cb(null, prefix + uniqueSuffix + ext);
-  },
-});
+const uploadBaseDir = getUploadDir();
+const videosDir = path.join(uploadBaseDir, 'videos');
+const subtitlesDir = path.join(uploadBaseDir, 'subtitles');
+
+// Solo crear directorios en desarrollo
+if (process.env.NODE_ENV !== 'production') {
+  [videosDir, subtitlesDir].forEach((dir) => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  });
+}
+
+const storage = process.env.NODE_ENV === 'production'
+  ? multer.memoryStorage() // En Vercel: guardar en memoria
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dir = file.fieldname === 'subtitle' ? subtitlesDir : videosDir;
+        // Crear directorio si no existe
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = file.fieldname === 'subtitle' ? '.vtt' : '.mp4';
+        const prefix = file.fieldname === 'subtitle' ? 'subtitle-' : 'video-';
+        cb(null, prefix + uniqueSuffix + ext);
+      },
+    });
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'subtitle') {

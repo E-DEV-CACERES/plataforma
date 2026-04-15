@@ -19,10 +19,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import SchoolIcon from '@mui/icons-material/School';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/useAuth';
+import { useCart } from '../context/useCart';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -150,26 +152,48 @@ export const Navbar = () => {
             </Button>
           )}
 
-          {user?.role === 'admin' && (
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/create-course"
-              startIcon={<AddIcon />}
-              sx={{
-                backgroundColor: 'rgba(255,255,255,0.25)',
-                '&:hover': { backgroundColor: 'rgba(255,255,255,0.35)' },
-              }}
-            >
-              Crear Curso
-            </Button>
+          {(user?.role === 'admin' || user?.role === 'instructor') && (
+            <>
+              {user?.role === 'admin' && (
+                <Button
+                  color="inherit"
+                  component={RouterLink}
+                  to="/admin"
+                  startIcon={<AdminPanelSettingsIcon />}
+                  sx={{ '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
+                >
+                  Panel Admin
+                </Button>
+              )}
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/instructor-panel"
+                startIcon={<SchoolIcon />}
+                sx={{ '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
+              >
+                Mi Perfil
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/create-course"
+                startIcon={<AddIcon />}
+                sx={{
+                  backgroundColor: 'rgba(255,255,255,0.25)',
+                  '&:hover': { backgroundColor: 'rgba(255,255,255,0.35)' },
+                }}
+              >
+                Crear Curso
+              </Button>
+            </>
           )}
 
           {user ? (
             <>
               <Chip
                 icon={<PersonIcon sx={{ color: 'white !important' }} />}
-                label={user.role === 'admin' ? 'Admin' : user.name}
+                label={user.role === 'admin' ? 'Admin' : user.role === 'instructor' ? 'Instructor' : user.name}
                 size="small"
                 sx={{
                   color: 'white',
@@ -243,11 +267,23 @@ export const Navbar = () => {
                 Mis Cursos
               </MenuItem>
             )}
-            {user?.role === 'admin' && (
-              <MenuItem onClick={() => handleMenuNavigate('/create-course')}>
-                <AddIcon sx={{ mr: 1 }} />
-                Crear Curso
-              </MenuItem>
+            {(user?.role === 'admin' || user?.role === 'instructor') && (
+              [
+                user?.role === 'admin' && (
+                  <MenuItem key="admin" onClick={() => handleMenuNavigate('/admin')}>
+                    <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                    Panel Admin
+                  </MenuItem>
+                ),
+                <MenuItem key="instructor" onClick={() => handleMenuNavigate('/instructor-panel')}>
+                  <SchoolIcon sx={{ mr: 1 }} />
+                  Mi Perfil
+                </MenuItem>,
+                <MenuItem key="create" onClick={() => handleMenuNavigate('/create-course')}>
+                  <AddIcon sx={{ mr: 1 }} />
+                  Crear Curso
+                </MenuItem>,
+              ].filter(Boolean)
             )}
             {user ? (
               <MenuItem onClick={handleLogout}>

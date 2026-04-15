@@ -1,16 +1,5 @@
-import { createContext, useState, useContext, useEffect } from 'react';
-
-const CART_STORAGE_KEY = 'edtech_cart';
-
-const CartContext = createContext();
-
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart debe ser usado dentro de CartProvider');
-  }
-  return context;
-};
+import { useState, useEffect } from 'react';
+import { CartContext, CART_STORAGE_KEY } from './cartContext';
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -36,7 +25,15 @@ export const CartProvider = ({ children }) => {
   const addToCart = (course) => {
     setCartItems((prev) => {
       if (prev.some((item) => item.id === course.id)) return prev;
-      const next = [...prev, { id: course.id, title: course.title, description: course.description, createdByName: course.createdByName }];
+      const next = [...prev, {
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        createdByName: course.createdByName,
+        createdById: course.createdById,
+        averageRating: course.averageRating ?? 0,
+        ratingsCount: course.ratingsCount ?? 0,
+      }];
       persistCart(next);
       return next;
     });

@@ -8,6 +8,10 @@ function errorHandler(err, req, res, next) {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Error interno del servidor';
 
+  if (message === 'CORS no permitido') {
+    statusCode = 403;
+  }
+
   // Errores de MySQL: FK constraint = datos inconsistentes (sesión inválida, etc.)
   if (err.errno === MYSQL_FK_ERROR) {
     statusCode = 400;

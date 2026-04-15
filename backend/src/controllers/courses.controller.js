@@ -3,7 +3,7 @@ const ratingService = require('../services/rating.service');
 
 async function getAll(req, res, next) {
   try {
-    const search = req.query.search || req.query.q || '';
+    const search = req.safeSearch ?? (req.query.search || req.query.q || '');
     const courses = await coursesService.getAll(search);
     res.json(courses);
   } catch (err) {

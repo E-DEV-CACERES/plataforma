@@ -11,12 +11,13 @@ import {
   IconButton,
   Grid,
   Alert,
+  Rating,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SchoolIcon from '@mui/icons-material/School';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/useCart';
+import { useAuth } from '../context/useAuth';
 import { useSnackbar } from '../context/useSnackbar';
 import { courseService } from '../services/api';
 
@@ -82,9 +83,9 @@ export const CartPage = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f7f9fa', py: 4 }}>
-      <Container maxWidth="lg">
-        <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ShoppingCartIcon fontSize="large" />
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+        <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+          <ShoppingCartIcon sx={{ fontSize: { xs: 28, sm: 36 } }} />
           Carrito de cursos
         </Typography>
 
@@ -120,9 +121,9 @@ export const CartPage = () => {
                 Vaciar carrito
               </Button>
             </Box>
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
               {cartItems.map((item) => (
-                <Grid item xs={12} sm={6} md={4} key={item.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
                   <Card
                     sx={{
                       height: '100%',
@@ -138,7 +139,7 @@ export const CartPage = () => {
                   >
                     <Box
                       sx={{
-                        height: 140,
+                        height: { xs: 120, sm: 140 },
                         width: '100%',
                         backgroundImage: `url(${getCourseImage(item.id)})`,
                         backgroundSize: 'cover',
@@ -154,8 +155,26 @@ export const CartPage = () => {
                       </Typography>
                       {item.createdByName && (
                         <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5 }}>
-                          Por {item.createdByName}
+                          Por{' '}
+                          {item.createdById ? (
+                            <Typography component={RouterLink} to={`/instructor/${item.createdById}`} variant="caption" color="primary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                              {item.createdByName}
+                            </Typography>
+                          ) : (
+                            item.createdByName
+                          )}
                         </Typography>
+                      )}
+                      {((item.averageRating ?? 0) > 0 || (item.ratingsCount ?? 0) > 0) && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                            {(item.averageRating ?? 0).toFixed(1)}
+                          </Typography>
+                          <Rating value={item.averageRating ?? 0} precision={0.5} readOnly size="small" sx={{ fontSize: '0.85rem' }} />
+                          <Typography variant="caption" color="textSecondary">
+                            ({(item.ratingsCount ?? 0).toLocaleString('es')} calificaciones)
+                          </Typography>
+                        </Box>
                       )}
                     </CardContent>
                     <CardActions sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1, px: 2, pb: 2 }}>

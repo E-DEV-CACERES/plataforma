@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Paper,
@@ -9,30 +9,34 @@ import {
   Alert,
   CircularProgress,
   Link,
-  Card,
-  CardActionArea,
-  CardContent,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, error } = useAuth();
+  const { login, error, clearError } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    clearError();
+  }, [email, password, clearError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const result = await login(email, password);
-    setLoading(false);
-    
-    if (result.success) {
-      navigate('/');
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,10 +46,33 @@ export const LoginPage = () => {
   };
 
   const socialProviders = [
-    { id: 'google', label: 'Continuar con Google', icon: <GoogleIcon sx={{ fontSize: 28 }} />, color: '#fff' },
-    { id: 'apple', label: 'Continuar con Apple', icon: <AppleIcon sx={{ fontSize: 28 }} />, color: '#fff' },
-    { id: 'github', label: 'Continuar con GitHub', icon: <GitHubIcon sx={{ fontSize: 28 }} />, color: '#fff' },
+    { id: 'google', label: 'Continuar con Google', icon: <GoogleIcon sx={{ fontSize: 28 }} /> },
+    { id: 'apple', label: 'Continuar con Apple', icon: <AppleIcon sx={{ fontSize: 28 }} /> },
+    { id: 'github', label: 'Continuar con GitHub', icon: <GitHubIcon sx={{ fontSize: 28 }} /> },
   ];
+
+  const loginHeroImage = '/images/login-estudiante-programacion.jpg';
+  const loginHeroAlt =
+    'Estudiantes con ordenadores portátiles en un entorno de aprendizaje de programación';
+
+  const socialButtonOnImageSx = {
+    justifyContent: 'flex-start',
+    py: 1.35,
+    px: 2,
+    width: '100%',
+    maxWidth: 340,
+    textTransform: 'none',
+    color: 'rgba(255,255,255,0.95)',
+    border: '1px solid rgba(255,255,255,0.45)',
+    bgcolor: 'rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    '&:hover': {
+      bgcolor: 'rgba(33, 150, 243, 0.35)',
+      borderColor: 'rgba(100, 181, 246, 0.95)',
+      boxShadow: '0 0 0 1px rgba(66, 165, 245, 0.45)',
+    },
+  };
 
   return (
     <Box
@@ -54,6 +81,7 @@ export const LoginPage = () => {
         display: 'flex',
         alignItems: 'stretch',
         bgcolor: 'background.paper',
+        overflowX: 'hidden',
       }}
     >
       {/* Sección izquierda: formulario */}
@@ -88,9 +116,10 @@ export const LoginPage = () => {
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="on">
             <TextField
               fullWidth
+              name="email"
               label="Email"
               type="email"
               value={email}
@@ -99,6 +128,7 @@ export const LoginPage = () => {
               variant="outlined"
               placeholder="tu@email.com"
               required
+              autoComplete="email"
               sx={{
                 '& .MuiInputBase-input': { py: 1.5, fontSize: '1rem' },
                 '& .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
@@ -109,6 +139,7 @@ export const LoginPage = () => {
 
             <TextField
               fullWidth
+              name="password"
               label="Contraseña"
               type="password"
               value={password}
@@ -117,6 +148,7 @@ export const LoginPage = () => {
               variant="outlined"
               placeholder="••••••"
               required
+              autoComplete="current-password"
               sx={{
                 '& .MuiInputBase-input': { py: 1.5, fontSize: '1rem' },
                 '& .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
@@ -137,17 +169,60 @@ export const LoginPage = () => {
             </Button>
           </Box>
 
-          <Box sx={{ mt: 3, display: { md: 'none' } }}>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 1.5 }}>O continúa con</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box
+            aria-label={loginHeroAlt}
+            sx={{
+              mt: 3,
+              display: { md: 'none' },
+              position: 'relative',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '100vw',
+              maxWidth: '100vw',
+              borderRadius: 0,
+              overflow: 'hidden',
+              minHeight: 200,
+            }}
+          >
+            <Box
+              aria-hidden
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${loginHeroImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+            <Box
+              aria-hidden
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                background: (theme) =>
+                  `linear-gradient(145deg, ${alpha(theme.palette.primary.dark, 0.78)} 0%, ${alpha(theme.palette.primary.main, 0.42)} 100%)`,
+              }}
+            />
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 1,
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', mb: 0.5 }}>
+                O continúa con
+              </Typography>
               {socialProviders.map((p) => (
                 <Button
                   key={p.id}
-                  variant="outlined"
                   fullWidth
-                  startIcon={p.icon}
+                  startIcon={<Box sx={{ color: 'inherit', display: 'flex' }}>{p.icon}</Box>}
                   onClick={() => handleSocialLogin(p.id)}
-                  sx={{ justifyContent: 'flex-start', py: 1.25 }}
+                  sx={socialButtonOnImageSx}
                 >
                   {p.label}
                 </Button>
@@ -156,7 +231,7 @@ export const LoginPage = () => {
           </Box>
 
           <Box sx={{ mt: 3 }}>
-            <Typography variant="body1" color="textSecondary" sx={{ fontSize: '0.95rem' }}>
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
               ¿No tienes cuenta?{' '}
               <Link
                 component={RouterLink}
@@ -182,45 +257,74 @@ export const LoginPage = () => {
         }}
       />
 
-      {/* Sección derecha: tarjetas de autenticación social */}
+      {/* Sección derecha: imagen de fondo a todo el ancho + botones sociales */}
       <Box
+        aria-label={loginHeroAlt}
         sx={{
           flex: 1,
           display: { xs: 'none', md: 'flex' },
           flexDirection: 'column',
-          alignItems: 'center',
+          alignItems: 'stretch',
           justifyContent: 'center',
-          gap: 2,
+          minHeight: '100vh',
+          position: 'relative',
+          overflow: 'hidden',
           py: 4,
-          px: 4,
-          bgcolor: 'primary.main',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${loginHeroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            zIndex: 0,
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            background: (theme) =>
+              `linear-gradient(155deg, ${alpha(theme.palette.primary.dark, 0.78)} 0%, ${alpha(theme.palette.primary.main, 0.38)} 55%, rgba(0,0,0,0.15) 100%)`,
+          },
         }}
       >
-        <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', mb: 2, fontWeight: 500 }}>
-          O inicia sesión con
-        </Typography>
-        {socialProviders.map((p) => (
-          <Card
-            key={p.id}
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            px: 3,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            boxSizing: 'border-box',
+          }}
+        >
+          <Typography
+            variant="h6"
             sx={{
-              width: '100%',
-              maxWidth: 320,
-              bgcolor: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 2,
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.35)' },
+              color: 'rgba(255,255,255,0.95)',
+              fontWeight: 500,
+              textAlign: 'center',
+              textShadow: '0 1px 8px rgba(0,0,0,0.35)',
             }}
           >
-            <CardActionArea onClick={() => handleSocialLogin(p.id)} sx={{ py: 1.5, px: 2 }}>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 0, '&:last-child': { pb: 0 } }}>
-                <Box sx={{ color: p.color }}>{p.icon}</Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.95)', fontWeight: 500 }}>
-                  {p.label}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ))}
+            O inicia sesión con
+          </Typography>
+          {socialProviders.map((p) => (
+            <Button
+              key={p.id}
+              fullWidth
+              startIcon={<Box sx={{ color: 'inherit', display: 'flex' }}>{p.icon}</Box>}
+              onClick={() => handleSocialLogin(p.id)}
+              sx={socialButtonOnImageSx}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </Box>
       </Box>
     </Box>
   );
