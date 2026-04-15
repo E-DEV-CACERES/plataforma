@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import react from '@vitejs/plugin-react'
 
+// ✅ REMOVED: @vitejs/plugin-basic-ssl - not needed for Vercel deployment
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Vite configuration for frontend
