@@ -15,6 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { LAYOUT } from './constants';
+import { resolveMediaUrl } from '../../services/api';
 
 function formatVideoDuration(seconds) {
   const m = Math.floor(seconds / 60);
@@ -25,7 +26,6 @@ function formatVideoDuration(seconds) {
 export function ChaptersAccordion({
   groups,
   hasContent,
-  baseUrl,
   selectedVideo,
   progress,
   isAdminOrCourseOwner,
@@ -159,7 +159,7 @@ export function ChaptersAccordion({
               <ListItemButton
                 key={file.id}
                 component="a"
-                href={`${baseUrl}${file.fileUrl}`}
+                href={resolveMediaUrl(file.fileUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 download

@@ -1,5 +1,5 @@
 const instructorService = require('../services/instructor.service');
-const fs = require('fs');
+const { uploadImage } = require('../utils/cloudinary');
 
 async function getProfile(req, res, next) {
   try {
@@ -33,13 +33,10 @@ async function uploadProfileImage(req, res, next) {
     if (!req.file) {
       return res.status(400).json({ message: 'No se envió ninguna imagen.' });
     }
-    const filePath = `/uploads/instructors/profile/${req.file.filename}`;
-    const profile = await instructorService.uploadProfileImage(req.user.id, filePath);
+    const result = await uploadImage(req.file, `instructors/profile`);
+    const profile = await instructorService.uploadProfileImage(req.user.id, result.secure_url);
     res.json(profile);
   } catch (err) {
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     next(err);
   }
 }
@@ -49,13 +46,10 @@ async function uploadCoverImage(req, res, next) {
     if (!req.file) {
       return res.status(400).json({ message: 'No se envió ninguna imagen.' });
     }
-    const filePath = `/uploads/instructors/cover/${req.file.filename}`;
-    const profile = await instructorService.uploadCoverImage(req.user.id, filePath);
+    const result = await uploadImage(req.file, `instructors/cover`);
+    const profile = await instructorService.uploadCoverImage(req.user.id, result.secure_url);
     res.json(profile);
   } catch (err) {
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     next(err);
   }
 }

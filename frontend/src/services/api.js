@@ -4,8 +4,21 @@ import axios from 'axios';
 // En prod: usa VITE_API_URL o fallback absoluto
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:4000/api');
 
-/** Base URL para archivos estáticos (videos, subtítulos). Vacío = rutas relativas (pasan por proxy). */
-export const MEDIA_BASE_URL = API_URL.startsWith('/') ? '' : API_URL.replace(/\/api\/?$/, '') || '';
+/** Base URL para archivos estáticos legacy (rutas relativas /uploads/...). */
+const LEGACY_MEDIA_BASE = API_URL.startsWith('/') ? '' : API_URL.replace(/\/api\/?$/, '') || '';
+
+/**
+ * Resuelve una URL de media: si es absoluta (Cloudinary, etc.) la devuelve tal cual;
+ * si es relativa (/uploads/...) le antepone el host del backend.
+ */
+export function resolveMediaUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${LEGACY_MEDIA_BASE}${url}`;
+}
+
+/** @deprecated Usa resolveMediaUrl() en su lugar */
+export const MEDIA_BASE_URL = LEGACY_MEDIA_BASE;
 
 const api = axios.create({
   baseURL: API_URL,

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { Box, Card } from '@mui/material';
-import { MEDIA_BASE_URL } from '../../services/api';
+import { resolveMediaUrl } from '../../services/api';
 import { VideoPlayerArea } from './VideoPlayerArea';
 import { ChaptersSidebar } from './ChaptersSidebar';
 import { LAYOUT } from './constants';
@@ -104,8 +104,6 @@ export function CoursePlayer({
     setExpandedAccordion((prev) => (prev === accordionKey ? null : accordionKey));
   }, []);
 
-  const baseUrl = MEDIA_BASE_URL;
-
   return (
     <Box ref={playerRef}>
       <Card
@@ -127,7 +125,6 @@ export function CoursePlayer({
           }}
         >
           <VideoPlayerArea
-            baseUrl={baseUrl}
             selectedVideo={selectedVideo}
             canViewVideos={canViewVideos}
             isEnrolled={isEnrolled}
@@ -157,7 +154,6 @@ export function CoursePlayer({
         >
           <ChaptersSidebar
             course={course}
-            baseUrl={baseUrl}
             videos={videos}
             courseFiles={courseFiles}
             groups={groups}

@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const path = require('path');
 const config = require('./config');
 const mountRoutes = require('./routes');
 const logger = require('./middleware/logger');
@@ -26,19 +25,6 @@ app.use(
 );
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
-
-const videoMimeTypes = { '.mp4': 'video/mp4', '.m4v': 'video/mp4', '.webm': 'video/webm', '.ogg': 'video/ogg', '.mov': 'video/quicktime', '.avi': 'video/x-msvideo' };
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'), {
-  setHeaders: (res, filePath) => {
-    res.setHeader('Accept-Ranges', 'bytes');
-    if (filePath.endsWith('.vtt')) {
-      res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-    } else {
-      const ext = path.extname(filePath).toLowerCase();
-      if (videoMimeTypes[ext]) res.setHeader('Content-Type', videoMimeTypes[ext]);
-    }
-  },
-}));
 app.use(logger);
 
 app.get('/', (req, res) => {

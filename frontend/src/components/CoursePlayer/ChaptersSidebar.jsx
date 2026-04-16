@@ -17,7 +17,6 @@ import { LAYOUT } from './constants';
 
 export function ChaptersSidebar({
   course,
-  baseUrl,
   videos,
   courseFiles,
   groups,
@@ -137,7 +136,6 @@ export function ChaptersSidebar({
         <ChaptersAccordion
           groups={groups}
           hasContent={hasContent}
-          baseUrl={baseUrl}
           selectedVideo={selectedVideo}
           progress={progress}
           isAdminOrCourseOwner={isAdminOrCourseOwner}

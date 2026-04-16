@@ -20,7 +20,7 @@ import StarIcon from '@mui/icons-material/Star';
 import LanguageIcon from '@mui/icons-material/Language';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import { instructorService, MEDIA_BASE_URL } from '../services/api';
+import { instructorService, resolveMediaUrl } from '../services/api';
 import { formatDuration } from '../utils/formatDuration';
 
 const COURSE_IMAGES = [
@@ -82,7 +82,7 @@ export const InstructorProfilePage = () => {
             sx={{
               height: 180,
               background: profile.instructorCoverImage
-                ? `url(${MEDIA_BASE_URL}${profile.instructorCoverImage}) center/cover`
+                ? `url(${resolveMediaUrl(profile.instructorCoverImage)}) center/cover`
                 : 'linear-gradient(135deg, #5624d0 0%, #7c4dff 100%)',
             }}
           />
@@ -90,7 +90,7 @@ export const InstructorProfilePage = () => {
             {profile.instructorProfileImage ? (
               <Box
                 component="img"
-                src={`${MEDIA_BASE_URL}${profile.instructorProfileImage}`}
+                src={resolveMediaUrl(profile.instructorProfileImage)}
                 alt={profile.name}
                 sx={{
                   width: 100,

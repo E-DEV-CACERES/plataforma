@@ -1,9 +1,9 @@
 import { Box, Typography, Button } from '@mui/material';
 import { CourseDescriptionTabs } from '../CourseDescriptionTabs';
 import { LAYOUT } from './constants';
+import { resolveMediaUrl } from '../../services/api';
 
 export function VideoPlayerArea({
-  baseUrl,
   selectedVideo,
   canViewVideos,
   isEnrolled,
@@ -21,7 +21,7 @@ export function VideoPlayerArea({
         {canViewVideos ? (
           <Box
             component="video"
-            src={`${baseUrl}${selectedVideo.videoUrl}`}
+            src={resolveMediaUrl(selectedVideo.videoUrl)}
             controls
             preload="metadata"
             onEnded={() => isEnrolled && onMarkWatched(selectedVideo.id)}
@@ -37,7 +37,7 @@ export function VideoPlayerArea({
             {selectedVideo.subtitleUrl && (
               <track
                 kind="subtitles"
-                src={`${baseUrl}${selectedVideo.subtitleUrl}`}
+                src={resolveMediaUrl(selectedVideo.subtitleUrl)}
                 srcLang="es"
                 label="Español"
                 default

@@ -28,7 +28,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/Check';
 import PersonIcon from '@mui/icons-material/Person';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { courseService, sectionService, videoService, MEDIA_BASE_URL } from '../services/api';
+import { courseService, sectionService, videoService, resolveMediaUrl } from '../services/api';
 import { CourseDetailSkeleton } from '../components/CourseCardSkeleton';
 import { useSnackbar } from '../context/useSnackbar';
 import { formatDuration, formatLastUpdated } from '../utils/formatDuration';
@@ -382,7 +382,7 @@ export const CoursePage = () => {
               {course.createdByProfileImage ? (
                 <Box
                   component="img"
-                  src={`${MEDIA_BASE_URL}${course.createdByProfileImage}`}
+                  src={resolveMediaUrl(course.createdByProfileImage)}
                   alt={`Foto de perfil de ${course.createdByName}`}
                   sx={{
                     width: 40,

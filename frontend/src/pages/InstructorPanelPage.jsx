@@ -20,7 +20,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import ShareIcon from '@mui/icons-material/Share';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import { instructorService, MEDIA_BASE_URL } from '../services/api';
+import { instructorService, resolveMediaUrl } from '../services/api';
 import { useAuth } from '../context/useAuth';
 import { useSnackbar } from '../context/useSnackbar';
 
@@ -168,7 +168,7 @@ export const InstructorPanelPage = () => {
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <Box
                   component={profile?.instructorProfileImage ? 'img' : 'div'}
-                  src={profile?.instructorProfileImage ? `${MEDIA_BASE_URL}${profile.instructorProfileImage}` : undefined}
+                  src={profile?.instructorProfileImage ? resolveMediaUrl(profile.instructorProfileImage) : undefined}
                   alt="Perfil"
                   onClick={() => profileInputRef.current?.click()}
                   sx={{
@@ -210,7 +210,7 @@ export const InstructorPanelPage = () => {
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Box
                   component={profile?.instructorCoverImage ? 'img' : 'div'}
-                  src={profile?.instructorCoverImage ? `${MEDIA_BASE_URL}${profile.instructorCoverImage}` : undefined}
+                  src={profile?.instructorCoverImage ? resolveMediaUrl(profile.instructorCoverImage) : undefined}
                   alt="Portada"
                   onClick={() => coverInputRef.current?.click()}
                   sx={{

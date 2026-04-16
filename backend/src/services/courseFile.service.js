@@ -1,6 +1,7 @@
 const courseRepository = require('../repositories/course.repository');
 const courseFileRepository = require('../repositories/courseFile.repository');
 const { AppError } = require('../utils/errors');
+const { uploadFile } = require('../utils/cloudinary');
 
 async function getByCourseId(courseId) {
   return courseFileRepository.findByCourseId(courseId);
@@ -10,7 +11,10 @@ async function create(courseId, data, file) {
   const exists = await courseRepository.exists(courseId);
   if (!exists) throw new AppError('Curso no encontrado.', 404);
   if (!file) throw new AppError('No se proporcionó archivo.', 400);
-  const fileUrl = `/uploads/files/${file.filename}`;
+
+  const result = await uploadFile(file, courseId);
+  const fileUrl = result.secure_url;
+
   const { title, sectionId, order } = data;
   const id = await courseFileRepository.create({
     courseId,

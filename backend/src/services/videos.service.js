@@ -1,8 +1,7 @@
-const path = require('path');
 const courseRepository = require('../repositories/course.repository');
 const videoRepository = require('../repositories/video.repository');
 const { AppError } = require('../utils/errors');
-const { convertToH264 } = require('../utils/convertVideo');
+const { uploadVideo, uploadSubtitle } = require('../utils/cloudinary');
 
 async function getByCourseId(courseId) {
   return videoRepository.findByCourseId(courseId);
@@ -24,14 +23,16 @@ async function create(courseId, data, videoFile, subtitleFile) {
   if (!videoFile) {
     throw new AppError('No se proporcionó archivo de video.', 400);
   }
-  const videoPath = path.join(process.cwd(), 'uploads', 'videos', videoFile.filename);
-  try {
-    await convertToH264(videoPath);
-  } catch (err) {
-    console.warn('Conversión de video omitida:', err.message);
+
+  const videoResult = await uploadVideo(videoFile, courseId);
+  const videoUrl = videoResult.secure_url;
+
+  let subtitleUrl = null;
+  if (subtitleFile) {
+    const subResult = await uploadSubtitle(subtitleFile, courseId);
+    subtitleUrl = subResult.secure_url;
   }
-  const videoUrl = `/uploads/videos/${videoFile.filename}`;
-  const subtitleUrl = subtitleFile ? `/uploads/subtitles/${subtitleFile.filename}` : null;
+
   const { title, description, duration, order, sectionId } = data;
   const id = await videoRepository.create({
     title,

@@ -1,39 +1,6 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
 
-// En Vercel/Producción: usar /tmp; en desarrollo: usar ./uploads
-const getUploadDir = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return path.join(os.tmpdir(), 'uploads', 'files');
-  }
-  return path.join(process.cwd(), 'uploads', 'files');
-};
-
-const filesDir = getUploadDir();
-
-// Solo crear directorios en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-  if (!fs.existsSync(filesDir)) fs.mkdirSync(filesDir, { recursive: true });
-}
-
-const storage = process.env.NODE_ENV === 'production'
-  ? multer.memoryStorage() // En Vercel: guardar en memoria
-  : multer.diskStorage({
-      destination: (req, file, cb) => {
-        // Crear directorio si no existe
-        if (!fs.existsSync(filesDir)) {
-          fs.mkdirSync(filesDir, { recursive: true });
-        }
-        cb(null, filesDir);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname) || '';
-        cb(null, 'file-' + uniqueSuffix + ext);
-      },
-    });
+const storage = multer.memoryStorage();
 
 const allowedMimes = [
   'application/pdf',
