@@ -402,3 +402,5 @@ export const InstructorPanelPage = () => {
     </Box>
   );
 };
+
+export default InstructorPanelPage;

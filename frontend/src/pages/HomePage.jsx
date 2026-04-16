@@ -218,3 +218,5 @@ export const HomePage = () => {
     </Box>
   );
 };
+
+export default HomePage;

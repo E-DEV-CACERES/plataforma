@@ -266,3 +266,5 @@ export const InstructorProfilePage = () => {
     </Box>
   );
 };
+
+export default InstructorProfilePage;

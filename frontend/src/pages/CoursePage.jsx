@@ -663,3 +663,5 @@ export const CoursePage = () => {
     </Box>
   );
 };
+
+export default CoursePage;

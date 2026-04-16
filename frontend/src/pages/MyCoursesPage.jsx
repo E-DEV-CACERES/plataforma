@@ -306,3 +306,5 @@ export const MyCoursesPage = () => {
     </Box>
   );
 };
+
+export default MyCoursesPage;

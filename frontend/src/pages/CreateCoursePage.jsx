@@ -290,3 +290,5 @@ export const CreateCoursePage = () => {
     </Box>
   );
 };
+
+export default CreateCoursePage;

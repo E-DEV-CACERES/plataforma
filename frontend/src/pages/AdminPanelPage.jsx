@@ -952,3 +952,5 @@ export const AdminPanelPage = () => {
     </Box>
   );
 };
+
+export default AdminPanelPage;

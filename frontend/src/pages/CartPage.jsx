@@ -231,3 +231,5 @@ export const CartPage = () => {
     </Box>
   );
 };
+
+export default CartPage;
