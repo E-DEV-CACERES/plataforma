@@ -16,6 +16,13 @@ router.post(
   uploadFiles.single('file'),
   courseFileController.create
 );
+router.post(
+  '/:courseId/create',
+  auth,
+  requirePositiveIntParam('courseId'),
+  requireCourseOwnerOrAdmin,
+  courseFileController.create
+);
 router.delete('/:courseId/:fileId', auth, requirePositiveIntParam('courseId'), requirePositiveIntParam('fileId'), requireCourseOwnerOrAdmin, courseFileController.remove);
 
 module.exports = router;

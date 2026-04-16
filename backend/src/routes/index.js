@@ -6,6 +6,7 @@ const progressRoutes = require('./progress.routes');
 const sectionsRoutes = require('./sections.routes');
 const courseFilesRoutes = require('./courseFiles.routes');
 const adminRoutes = require('./admin.routes');
+const uploadRoutes = require('./upload.routes');
 
 function mountRoutes(app) {
   app.use('/api/auth', authRoutes);
@@ -16,6 +17,7 @@ function mountRoutes(app) {
   app.use('/api/progress', progressRoutes);
   app.use('/api/sections', sectionsRoutes);
   app.use('/api/course-files', courseFilesRoutes);
+  app.use('/api/upload', uploadRoutes);
 }
 
 module.exports = mountRoutes;

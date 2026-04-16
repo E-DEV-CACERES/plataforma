@@ -20,15 +20,19 @@ async function create(courseId, data, videoFile, subtitleFile) {
   if (!exists) {
     throw new AppError('Curso no encontrado.', 404);
   }
-  if (!videoFile) {
-    throw new AppError('No se proporcionó archivo de video.', 400);
+
+  let videoUrl = data.videoUrl;
+  let subtitleUrl = data.subtitleUrl || null;
+
+  if (!videoUrl) {
+    if (!videoFile) {
+      throw new AppError('No se proporcionó archivo de video.', 400);
+    }
+    const videoResult = await uploadVideo(videoFile, courseId);
+    videoUrl = videoResult.secure_url;
   }
 
-  const videoResult = await uploadVideo(videoFile, courseId);
-  const videoUrl = videoResult.secure_url;
-
-  let subtitleUrl = null;
-  if (subtitleFile) {
+  if (!subtitleUrl && subtitleFile) {
     const subResult = await uploadSubtitle(subtitleFile, courseId);
     subtitleUrl = subResult.secure_url;
   }

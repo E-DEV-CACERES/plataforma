@@ -91,6 +91,10 @@ export const instructorService = {
     api.post('/instructors/me/cover-image', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
+  setProfileImageUrl: (imageUrl) =>
+    api.put('/instructors/me/profile-image', { imageUrl }),
+  setCoverImageUrl: (imageUrl) =>
+    api.put('/instructors/me/cover-image', { imageUrl }),
 };
 
 // Course services
@@ -113,6 +117,8 @@ export const videoService = {
     api.post(`/videos/${courseId}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
+  createVideo: (courseId, data) =>
+    api.post(`/videos/${courseId}/create`, data),
   getVideosByCourse: (courseId) => api.get(`/videos/${courseId}`),
   getVideoById: (courseId, videoId) => api.get(`/videos/${courseId}/${videoId}`),
   updateVideo: (courseId, videoId, data) => api.put(`/videos/${courseId}/${videoId}`, data),
@@ -134,6 +140,8 @@ export const courseFileService = {
     api.post(`/course-files/${courseId}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
+  create: (courseId, data) =>
+    api.post(`/course-files/${courseId}/create`, data),
   delete: (courseId, fileId) => api.delete(`/course-files/${courseId}/${fileId}`),
 };
 
@@ -171,6 +179,33 @@ export const progressService = {
     }
   },
 };
+
+async function getCloudinarySignature(folder) {
+  const res = await api.post('/upload/sign', { folder });
+  return res.data;
+}
+
+export async function uploadToCloudinary(file, folder, resourceType = 'auto', onProgress) {
+  const sig = await getCloudinarySignature(folder);
+  const form = new FormData();
+  form.append('file', file);
+  form.append('api_key', sig.api_key);
+  form.append('timestamp', sig.timestamp);
+  form.append('signature', sig.signature);
+  form.append('folder', sig.folder);
+
+  const res = await axios.post(
+    `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${resourceType}/upload`,
+    form,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: onProgress
+        ? (e) => onProgress(Math.round((e.loaded * 100) / (e.total || 1)))
+        : undefined,
+    },
+  );
+  return res.data;
+}
 
 export { API_URL };
 export default api;

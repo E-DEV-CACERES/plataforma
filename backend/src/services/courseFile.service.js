@@ -10,16 +10,19 @@ async function getByCourseId(courseId) {
 async function create(courseId, data, file) {
   const exists = await courseRepository.exists(courseId);
   if (!exists) throw new AppError('Curso no encontrado.', 404);
-  if (!file) throw new AppError('No se proporcionó archivo.', 400);
 
-  const result = await uploadFile(file, courseId);
-  const fileUrl = result.secure_url;
+  let fileUrl = data.fileUrl;
+  if (!fileUrl) {
+    if (!file) throw new AppError('No se proporcionó archivo.', 400);
+    const result = await uploadFile(file, courseId);
+    fileUrl = result.secure_url;
+  }
 
   const { title, sectionId, order } = data;
   const id = await courseFileRepository.create({
     courseId,
     sectionId: sectionId || null,
-    title: title || file.originalname,
+    title: title || (file ? file.originalname : 'archivo'),
     fileUrl,
     order: order ?? 0,
   });

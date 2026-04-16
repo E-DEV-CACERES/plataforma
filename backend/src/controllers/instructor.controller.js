@@ -30,11 +30,15 @@ async function updateMyProfile(req, res, next) {
 
 async function uploadProfileImage(req, res, next) {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No se envió ninguna imagen.' });
+    let imageUrl = req.body?.imageUrl;
+    if (!imageUrl) {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No se envió ninguna imagen.' });
+      }
+      const result = await uploadImage(req.file, `instructors/profile`);
+      imageUrl = result.secure_url;
     }
-    const result = await uploadImage(req.file, `instructors/profile`);
-    const profile = await instructorService.uploadProfileImage(req.user.id, result.secure_url);
+    const profile = await instructorService.uploadProfileImage(req.user.id, imageUrl);
     res.json(profile);
   } catch (err) {
     next(err);
@@ -43,11 +47,15 @@ async function uploadProfileImage(req, res, next) {
 
 async function uploadCoverImage(req, res, next) {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No se envió ninguna imagen.' });
+    let imageUrl = req.body?.imageUrl;
+    if (!imageUrl) {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No se envió ninguna imagen.' });
+      }
+      const result = await uploadImage(req.file, `instructors/cover`);
+      imageUrl = result.secure_url;
     }
-    const result = await uploadImage(req.file, `instructors/cover`);
-    const profile = await instructorService.uploadCoverImage(req.user.id, result.secure_url);
+    const profile = await instructorService.uploadCoverImage(req.user.id, imageUrl);
     res.json(profile);
   } catch (err) {
     next(err);

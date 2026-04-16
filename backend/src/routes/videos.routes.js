@@ -17,6 +17,13 @@ router.post(
   upload.fields([{ name: 'video', maxCount: 1 }, { name: 'subtitle', maxCount: 1 }]),
   videosController.create
 );
+router.post(
+  '/:courseId/create',
+  auth,
+  requirePositiveIntParam('courseId'),
+  requireCourseOwnerOrAdmin,
+  videosController.create
+);
 router.put('/:courseId/:videoId', auth, requirePositiveIntParam('courseId'), requirePositiveIntParam('videoId'), requireCourseOwnerOrAdmin, videosController.update);
 router.delete('/:courseId/:videoId', auth, requirePositiveIntParam('courseId'), requirePositiveIntParam('videoId'), requireCourseOwnerOrAdmin, videosController.remove);
 

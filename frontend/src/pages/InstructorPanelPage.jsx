@@ -20,7 +20,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import ShareIcon from '@mui/icons-material/Share';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import { instructorService, resolveMediaUrl } from '../services/api';
+import { instructorService, resolveMediaUrl, uploadToCloudinary } from '../services/api';
 import { useAuth } from '../context/useAuth';
 import { useSnackbar } from '../context/useSnackbar';
 
@@ -92,13 +92,12 @@ export const InstructorPanelPage = () => {
     }
     try {
       setUploadingProfile(true);
-      const formData = new FormData();
-      formData.append('image', file);
-      await instructorService.uploadProfileImage(formData);
+      const result = await uploadToCloudinary(file, 'plataforma/instructors/profile', 'image');
+      await instructorService.setProfileImageUrl(result.secure_url);
       showSnackbar('Imagen de perfil actualizada');
       fetchProfile();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || 'Error al subir imagen', 'error');
+      showSnackbar(err.response?.data?.message || err.message || 'Error al subir imagen', 'error');
     } finally {
       setUploadingProfile(false);
       e.target.value = '';
@@ -113,13 +112,12 @@ export const InstructorPanelPage = () => {
     }
     try {
       setUploadingCover(true);
-      const formData = new FormData();
-      formData.append('image', file);
-      await instructorService.uploadCoverImage(formData);
+      const result = await uploadToCloudinary(file, 'plataforma/instructors/cover', 'image');
+      await instructorService.setCoverImageUrl(result.secure_url);
       showSnackbar('Imagen de portada actualizada');
       fetchProfile();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || 'Error al subir imagen', 'error');
+      showSnackbar(err.response?.data?.message || err.message || 'Error al subir imagen', 'error');
     } finally {
       setUploadingCover(false);
       e.target.value = '';

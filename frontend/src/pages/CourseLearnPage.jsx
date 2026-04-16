@@ -22,6 +22,7 @@ import {
   progressService,
   sectionService,
   courseFileService,
+  uploadToCloudinary,
 } from '../services/api';
 import { useAuth } from '../context/useAuth';
 import { CourseDetailSkeleton } from '../components/CourseCardSkeleton';
@@ -202,17 +203,22 @@ export const CourseLearnPage = () => {
     }
     setUploadingFile(true);
     try {
-      const formData = new FormData();
-      formData.append('file', fileFormFile);
-      formData.append('title', fileForm.title?.trim() || fileFormFile.name);
-      if (fileForm.sectionId) formData.append('sectionId', fileForm.sectionId);
-      if (fileForm.order) formData.append('order', fileForm.order);
-      await courseFileService.upload(id, formData);
+      const result = await uploadToCloudinary(
+        fileFormFile,
+        `plataforma/files/course-${id}`,
+        'auto',
+      );
+      await courseFileService.create(id, {
+        fileUrl: result.secure_url,
+        title: fileForm.title?.trim() || fileFormFile.name,
+        sectionId: fileForm.sectionId || null,
+        order: fileForm.order || 0,
+      });
       showSnackbar('Archivo subido');
       handleFileClose();
       fetchData();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || 'Error al subir archivo', 'error');
+      showSnackbar(err.response?.data?.message || err.message || 'Error al subir archivo', 'error');
     } finally {
       setUploadingFile(false);
     }
@@ -278,20 +284,34 @@ export const CourseLearnPage = () => {
     }
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('video', uploadFile);
-      if (uploadSubtitleFile) formData.append('subtitle', uploadSubtitleFile);
-      formData.append('title', uploadForm.title.trim());
-      if (uploadForm.description?.trim()) formData.append('description', uploadForm.description.trim());
-      if (uploadForm.duration) formData.append('duration', uploadForm.duration);
-      if (uploadForm.order) formData.append('order', uploadForm.order);
-      if (uploadForm.sectionId) formData.append('sectionId', uploadForm.sectionId);
-      await videoService.uploadVideo(id, formData);
+      const videoResult = await uploadToCloudinary(
+        uploadFile,
+        `plataforma/videos/course-${id}`,
+        'video',
+      );
+      let subtitleUrl = null;
+      if (uploadSubtitleFile) {
+        const subResult = await uploadToCloudinary(
+          uploadSubtitleFile,
+          `plataforma/subtitles/course-${id}`,
+          'raw',
+        );
+        subtitleUrl = subResult.secure_url;
+      }
+      await videoService.createVideo(id, {
+        videoUrl: videoResult.secure_url,
+        subtitleUrl,
+        title: uploadForm.title.trim(),
+        description: uploadForm.description?.trim() || '',
+        duration: uploadForm.duration || 0,
+        order: uploadForm.order || 0,
+        sectionId: uploadForm.sectionId || null,
+      });
       showSnackbar('Video subido correctamente');
       handleUploadClose();
       fetchData();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || 'Error al subir el video', 'error');
+      showSnackbar(err.response?.data?.message || err.message || 'Error al subir el video', 'error');
     } finally {
       setUploading(false);
     }

@@ -11,6 +11,8 @@ router.get('/me', auth, instructorController.getMyProfile);
 router.put('/me', auth, instructorController.updateMyProfile);
 router.post('/me/profile-image', auth, requireInstructorOrAdmin, uploadProfile.single('image'), instructorController.uploadProfileImage);
 router.post('/me/cover-image', auth, requireInstructorOrAdmin, uploadCover.single('image'), instructorController.uploadCoverImage);
+router.put('/me/profile-image', auth, requireInstructorOrAdmin, instructorController.uploadProfileImage);
+router.put('/me/cover-image', auth, requireInstructorOrAdmin, instructorController.uploadCoverImage);
 router.get('/:id', auth, instructorController.getProfile);
 
 module.exports = router;
